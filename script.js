@@ -11,7 +11,7 @@ const createCard = (item) =>{
     cocktail.classList.add('cocktail');
 
     cocktail.innerHTML = `
-        <img class="cocktail__img" src="${API_URL}${item.image}" alt="Коктейль ${item.title}">
+        <img class="cocktail__img" src="${API_URL}${item.image}" alt="Коктейль ${item.title}" width='256' height='304'>
 
         <div class="cocktail__content">
             <div class="cocktail__text">
@@ -23,11 +23,52 @@ const createCard = (item) =>{
             <button class="cocktail__btn btn" data-id=${item.id}>Добавить</button>
         </div>
     `
-
     return cocktail;
 }
 
+const modalControler = ({modal, btnOpen, time = 300}) => {
+    const buttonElems = document.querySelector(btnOpen);
+    const modalElem = document.querySelector(modal);
+    modalElem.style.cssText = `
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity ${time}ms ease-in-out;
+    `;
+
+    const closeModal = (event) => {
+        const target = event.target;
+        const code = event.code;
+
+        if(target === modalElem || code === "Escape"){
+            modalElem.style.opacity = 0;
+
+            setTimeout(() => {
+                modalElem.style.visibility = 'hidden';
+            }, time);
+            
+            window.removeEventListener('keydown', closeModal);
+        }
+    };
+
+    const openModal = () => {
+            modalElem.style.visibility = 'visible';
+            modalElem.style.opacity = 1;
+            window.addEventListener('keydown', closeModal);
+        };
+
+    buttonElems.addEventListener('click', openModal);
+    modalElem.addEventListener('click', closeModal);
+    
+    return {openModal, closeModal};
+}
+
 const init = async () =>{
+    modalControler({
+        modal: '.modal_order', 
+        btnOpen: '.header__btn-order',
+    });
+
     const goodsListElem = document.querySelector('.goods__list');
     const data = await getData();
     
